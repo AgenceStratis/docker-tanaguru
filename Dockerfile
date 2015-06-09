@@ -11,6 +11,8 @@ RUN apt-get -yqq install bzip2  #To unarchive firefox.tar.bz2
 RUN apt-get -yqq install git 	#To dl source code of tanaguru
 RUN apt-get -yqq install openjdk-7-jdk #To compile sources of tanaguru
 RUN apt-get -yqq install maven 	#To compile sources of tanaguru
+RUN apt-get -yqq install mysql-client #To connect to MySQL db
+
 
 
 #Install JAVA Dependecies and link them to good directory
@@ -40,17 +42,18 @@ WORKDIR Tanaguru
 RUN mvn clean install -DskipTests=true
 WORKDIR /home/root
 RUN mv Tanaguru/cli/tanaguru-cli/target/tanaguru-*.tar.gz .
-RUN tar xzf *.tar.gz
+RUN tar xzf *.tar.gz 
+RUN mv tanaguru*/ ./tanaguru/ 
 
 #Install Tanaguru
-RUN echo "yes\n" | ./tanaguru*/install.sh --mysql-tg-db tanaguru_db \ 
+WORKDIR tanaguru
+RUN echo "yes\n" | ./install.sh --mysql-tg-db tanaguru_db \ 
 				 --mysql-tg-user tanaguru \
 				 --mysql-tg-passwd tanaguru \
 				 --tanaguru-url http://localhost:8080/tanaguru/ \
 				 --tomcat-webapps /var/lib/tomcat7/webapps \
-				 --tomcat-user tomcat7 \
+				 --tomcat-user root \
 				 --tg-admin-email tanaguru@email.com \
 				 --tg-admin-passwd tanaguru \
 				 --firefox-esr-path /opt/firefox/firefox \
 				 --display-port :99 
-
