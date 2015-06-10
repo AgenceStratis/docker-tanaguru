@@ -1,4 +1,4 @@
-FROM tomcat:7
+FROM ubuntu:14.04
 MAINTAINER Romain Moreau <moreau.romain83@gmail.com>
 
 USER root
@@ -6,7 +6,6 @@ USER root
 RUN apt-get update -qq 
 
 #Install Tools needed for further installations steps
-RUN apt-get -yqq install debconf-utils
 RUN apt-get -yqq install wget   #To dl firefox
 RUN apt-get -yqq install bzip2  #To unarchive firefox.tar.bz2
 RUN apt-get -yqq install git 	#To dl source code of tanaguru
@@ -24,10 +23,13 @@ WORKDIR /home/root
 ADD requests.sql sql/
 RUN service mysql start &&  mysql -uroot -ptanaguru < sql/requests.sql
 
+#Install Tomcat7
+RUN apt-get -yqq install tomcat7 
+
 #Install JAVA Dependecies and link them to good directory
 RUN apt-get install -yqq libspring-instrument-java
-RUN ln -s /usr/share/java/spring3-instrument-tomcat.jar /usr/local/tomcat/bin/spring3-instrument-tomcat.jar
-RUN ln -s /usr/share/java/mysql-connector-java.jar /usr/local/tomcat/bin/mysql-connector-java.jar
+RUN ln -s /usr/share/java/spring3-instrument-tomcat.jar /usr/share/tomcat7/lib/spring3-instrument-tomcat.jar
+RUN ln -s /usr/share/java/mysql-connector-java.jar /usr/share/tomcat7/lib/mysql-connector-java.jar
 
 #Install & Configure xvfb
 RUN apt-get -yqq install xvfb
@@ -60,11 +62,10 @@ RUN service mysql start && echo "yes\n" | ./install.sh --mysql-tg-db tanaguru_db
 				 --mysql-tg-user tanaguru \
 				 --mysql-tg-passwd tanaguru \
 				 --tanaguru-url http://localhost:8080/tanaguru/ \
-				 --tomcat-webapps /var/lib/tomcat7/webapps \
-				 --tomcat-user root \
+				 --tomcat-webapps /var/lib/tomcat7/webapps/ \
+				 --tomcat-user tomcat7 \
 				 --tg-admin-email tanaguru@email.com \
 				 --tg-admin-passwd tanaguru \
 				 --firefox-esr-path /opt/firefox/firefox \
-				 --display-port :99 
-
-EXPOSE 8080				 
+				 --display-port :99
+EXPOSE 8080
