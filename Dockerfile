@@ -6,14 +6,23 @@ USER root
 RUN apt-get update -qq 
 
 #Install Tools needed for further installations steps
+RUN apt-get -yqq install debconf-utils
 RUN apt-get -yqq install wget   #To dl firefox
 RUN apt-get -yqq install bzip2  #To unarchive firefox.tar.bz2
 RUN apt-get -yqq install git 	#To dl source code of tanaguru
 RUN apt-get -yqq install openjdk-7-jdk #To compile sources of tanaguru
 RUN apt-get -yqq install maven 	#To compile sources of tanaguru
-RUN apt-get -yqq install mysql-client #To connect to MySQL db
 
 
+#Install MySQL
+RUN echo 'mysql-server mysql-server/root_password password tanaguru'|debconf-set-selections 
+RUN echo 'mysql-server mysql-server/root_password_again password tanaguru'|debconf-set-selections
+RUN apt-get -yqq install mysql-server mysql-client
+RUN sed "s/max_allowed_packet = 16M/max_allowed_packet = 64M/g" /etc/mysql/my.cnf
+
+WORKDIR /home/root
+ADD requests.sql sql/
+RUN service mysql start &&  mysql -uroot -ptanaguru < sql/requests.sql
 
 #Install JAVA Dependecies and link them to good directory
 RUN apt-get install -yqq libspring-instrument-java
@@ -47,7 +56,7 @@ RUN mv tanaguru*/ ./tanaguru/
 
 #Install Tanaguru
 WORKDIR tanaguru
-RUN echo "yes\n" | ./install.sh --mysql-tg-db tanaguru_db \ 
+RUN service mysql start && echo "yes\n" | ./install.sh --mysql-tg-db tanaguru_db \ 
 				 --mysql-tg-user tanaguru \
 				 --mysql-tg-passwd tanaguru \
 				 --tanaguru-url http://localhost:8080/tanaguru/ \
@@ -57,3 +66,5 @@ RUN echo "yes\n" | ./install.sh --mysql-tg-db tanaguru_db \
 				 --tg-admin-passwd tanaguru \
 				 --firefox-esr-path /opt/firefox/firefox \
 				 --display-port :99 
+
+EXPOSE 8080				 
