@@ -3,6 +3,8 @@ db:
     volumes:
     - cnf:/etc/mysql/conf.d
     - /data
+    expose:
+    - 3306
     environment:
         MYSQL_ROOT_PASSWORD: tanaguru
         MYSQL_DATABASE: tanaguru_db
