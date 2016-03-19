@@ -16,6 +16,8 @@ Wait several seconds for tomcat7 start.
 
 You should be then able to point your browser at : `http//localhost:8080/` (on Linux) or `http://boot.2.docker.ip:8080/` (if you are on Windows or Mac OSX)
 
+launch the webapp at :  `http//localhost:8080/tanaguru` (on Linux) or `http://boot.2.docker.ip:8080/tanaguru` (if you are on Windows or Mac OSX)
+
 The default account is : tanaguru@email.com / tanaguru
 
 # Build Tanaguru docker image
